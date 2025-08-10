@@ -12,7 +12,9 @@ let currentSetIndex = 0, stageDone = false;
 
 let opts = {
   strings: textQueue[currentSetIndex],
-  charSize: 30, charSpacing: 35, lineHeight: 40,
+  charSize: 50, // حجم أكبر
+  charSpacing: 45, // مسافة أوسع بين الحروف
+  lineHeight: 60, // مسافة أوسع بين الأسطر
   cx: w / 2, cy: h / 2,
   fireworkPrevPoints: 10, fireworkBaseLineWidth: 5, fireworkAddedLineWidth: 8,
   fireworkSpawnTime: 200, fireworkBaseReachTime: 30, fireworkAddedReachTime: 30,
@@ -22,7 +24,7 @@ let opts = {
   fireworkBaseShards: 5, fireworkAddedShards: 5,
   fireworkShardPrevPoints: 3, fireworkShardBaseVel: 4, fireworkShardAddedVel: 2,
   fireworkShardBaseSize: 3, fireworkShardAddedSize: 3,
-  gravity: 0.1, upFlow: -0.1, letterContemplatingWaitTime: 200,
+  gravity: 0.1, upFlow: -0.1, letterContemplatingWaitTime: 400, // وقت أطول للنص
   balloonSpawnTime: 20, balloonBaseInflateTime: 10, balloonAddedInflateTime: 10,
   balloonBaseSize: 20, balloonAddedSize: 20, balloonBaseVel: 0.4, balloonAddedVel: 0.4,
   balloonBaseRadian: -(Math.PI / 2 - 0.5), balloonAddedRadian: -1
@@ -99,24 +101,4 @@ function anim() {
     if (currentSetIndex < textQueue.length - 1) {
       currentSetIndex++; loadSet(currentSetIndex);
     } else {
-      stageDone = true;
-      document.querySelectorAll(".float-img").forEach(img => img.style.display = "none");
-      showFinalText();
-    }
-  }
-}
-
-function showFinalText() {
-  let final = document.createElement("div");
-  final.className = "final-text";
-  final.innerText = "I LOVE YOU HADEEL";
-  document.body.appendChild(final);
-}
-
-loadSet(currentSetIndex);
-anim();
-
-window.addEventListener("resize", () => {
-  w = c.width = window.innerWidth; h = c.height = window.innerHeight;
-  hw = w / 2; hh = h / 2; ctx.font = opts.charSize + "px Verdana";
-});
+      stageDone = tr
