@@ -12,9 +12,9 @@ let currentSetIndex = 0, stageDone = false;
 
 let opts = {
   strings: textQueue[currentSetIndex],
-  charSize: 50, // حجم أكبر
-  charSpacing: 45, // مسافة أوسع بين الحروف
-  lineHeight: 60, // مسافة أوسع بين الأسطر
+  charSize: Math.min(window.innerWidth / 12, 60), // حجم الخط حسب الشاشة
+  charSpacing: 45,
+  lineHeight: 60,
   cx: w / 2, cy: h / 2,
   fireworkPrevPoints: 10, fireworkBaseLineWidth: 5, fireworkAddedLineWidth: 8,
   fireworkSpawnTime: 200, fireworkBaseReachTime: 30, fireworkAddedReachTime: 30,
@@ -24,7 +24,7 @@ let opts = {
   fireworkBaseShards: 5, fireworkAddedShards: 5,
   fireworkShardPrevPoints: 3, fireworkShardBaseVel: 4, fireworkShardAddedVel: 2,
   fireworkShardBaseSize: 3, fireworkShardAddedSize: 3,
-  gravity: 0.1, upFlow: -0.1, letterContemplatingWaitTime: 400, // وقت أطول للنص
+  gravity: 0.1, upFlow: -0.1, letterContemplatingWaitTime: 400, // مدة عرض أطول
   balloonSpawnTime: 20, balloonBaseInflateTime: 10, balloonAddedInflateTime: 10,
   balloonBaseSize: 20, balloonAddedSize: 20, balloonBaseVel: 0.4, balloonAddedVel: 0.4,
   balloonBaseRadian: -(Math.PI / 2 - 0.5), balloonAddedRadian: -1
@@ -56,8 +56,12 @@ Letter.prototype.reset = function () {
 };
 Letter.prototype.step = function () {
   if (this.phase === "firework") {
-    if (!this.spawned) { ++this.tick; if (this.tick >= this.spawningTime) { this.tick = 0; this.spawned = true; } }
-    else {
+    if (!this.spawned) {
+      ++this.tick;
+      if (this.tick >= this.spawningTime) {
+        this.tick = 0; this.spawned = true;
+      }
+    } else {
       ++this.tick;
       let lp = this.tick / this.reachTime, ap = Math.sin(lp * TauQuarter),
           x = lp * this.x, y = hh + ap * this.fireworkDy;
@@ -69,7 +73,17 @@ Letter.prototype.step = function () {
         ctx.lineWidth = p1[2] * (1 / (this.prevPoints.length - 1)) * i;
         ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
       }
-      if (this.tick >= this.reachTime) { this.phase = "done"; }
+      if (this.tick >= this.reachTime) {
+        this.phase = "contemplate";
+        this.contemplateTick = 0;
+      }
+    }
+  } else if (this.phase === "contemplate") {
+    this.contemplateTick++;
+    ctx.fillStyle = this.lightColor.replace("light", 70);
+    ctx.fillText(this.char, this.x + this.dx, this.y + this.dy);
+    if (this.contemplateTick > opts.letterContemplatingWaitTime) {
+      this.phase = "done";
     }
   }
 };
@@ -99,6 +113,28 @@ function anim() {
   ctx.translate(-hw, -hh);
   if (done && !stageDone) {
     if (currentSetIndex < textQueue.length - 1) {
-      currentSetIndex++; loadSet(currentSetIndex);
+      currentSetIndex++;
+      loadSet(currentSetIndex);
     } else {
-      stageDone = tr
+      stageDone = true;
+      showFinalText();
+    }
+  }
+}
+
+function showFinalText() {
+  let final = document.createElement("div");
+  final.className = "final-text";
+  final.innerText = "I LOVE YOU HADEEL";
+  document.body.appendChild(final);
+}
+
+loadSet(currentSetIndex);
+anim();
+
+window.addEventListener("resize", () => {
+  w = c.width = window.innerWidth; h = c.height = window.innerHeight;
+  hw = w / 2; hh = h / 2;
+  opts.charSize = Math.min(window.innerWidth / 12, 60);
+  ctx.font = opts.charSize + "px Verdana";
+});
